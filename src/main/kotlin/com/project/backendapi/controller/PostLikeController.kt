@@ -1,30 +1,40 @@
 package com.project.backendapi.controller
 
 import com.project.backendapi.domain.dto.PostLikeResponse
+import com.project.backendapi.security.JwtProvider
 import com.project.backendapi.service.PostLikeService
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.Authentication
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/posts")
 class PostLikeController(
-    private val postLikeService: PostLikeService
+    private val postLikeService: PostLikeService,
+    private val jwtProvider: JwtProvider
 ) {
+
+    private fun extractUserIdFromHeader(request: HttpServletRequest): Long? {
+        val bearerToken = request.getHeader("Authorization")
+        return if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            val token = bearerToken.substring(7)
+            jwtProvider.getUserIdFromToken(token)
+        } else {
+            null
+        }
+    }
 
     @PostMapping("/{postId}/likes")
     fun addLike(
         @PathVariable postId: Long,
-        authentication: Authentication?
+        request: HttpServletRequest
     ): ResponseEntity<PostLikeResponse> {
-        if (authentication == null || authentication.principal == null) {
-            throw IllegalArgumentException("인증이 필요합니다")
-        }
+        val userId = extractUserIdFromHeader(request)
+            ?: throw IllegalArgumentException("인증이 필요합니다")
 
-        val userId = authentication.principal as? Long
-            ?: throw IllegalArgumentException("사용자를 식별할 수 없습니다")
-
+        println("✅ PostLikeController.addLike: userId=$userId, postId=$postId")
         val response = postLikeService.addLike(postId, userId)
         return ResponseEntity.status(HttpStatus.CREATED).body(response)
     }
@@ -32,15 +42,12 @@ class PostLikeController(
     @DeleteMapping("/{postId}/likes")
     fun removeLike(
         @PathVariable postId: Long,
-        authentication: Authentication?
+        request: HttpServletRequest
     ): ResponseEntity<PostLikeResponse> {
-        if (authentication == null || authentication.principal == null) {
-            throw IllegalArgumentException("인증이 필요합니다")
-        }
+        val userId = extractUserIdFromHeader(request)
+            ?: throw IllegalArgumentException("인증이 필요합니다")
 
-        val userId = authentication.principal as? Long
-            ?: throw IllegalArgumentException("사용자를 식별할 수 없습니다")
-
+        println("✅ PostLikeController.removeLike: userId=$userId, postId=$postId")
         val response = postLikeService.removeLike(postId, userId)
         return ResponseEntity.ok(response)
     }

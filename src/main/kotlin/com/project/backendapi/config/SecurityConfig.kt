@@ -51,6 +51,11 @@ class SecurityConfig(
                     .requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/users/**").permitAll()
                     .requestMatchers("/h2-console/**").permitAll()
+                    // 임시: 좋아요 기능 테스트용
+                    .requestMatchers(HttpMethod.POST, "/comments/*/likes").permitAll()
+                    .requestMatchers(HttpMethod.DELETE, "/comments/*/likes").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/posts/*/likes").permitAll()
+                    .requestMatchers(HttpMethod.DELETE, "/posts/*/likes").permitAll()
                     .anyRequest().authenticated()
             }
             .headers { it.disable() }

@@ -2,25 +2,39 @@ package com.project.backendapi.controller
 
 import com.project.backendapi.domain.dto.CommentResponse
 import com.project.backendapi.domain.dto.CreateCommentRequest
+import com.project.backendapi.security.JwtProvider
 import com.project.backendapi.service.CommentService
+import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 
 @RestController
 class CommentController(
-    private val commentService: CommentService
+    private val commentService: CommentService,
+    private val jwtProvider: JwtProvider
 ) {
+
+    private fun extractUserIdFromHeader(request: HttpServletRequest): Long? {
+        val bearerToken = request.getHeader("Authorization")
+        return if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            val token = bearerToken.substring(7)
+            jwtProvider.getUserIdFromToken(token)
+        } else {
+            null
+        }
+    }
 
     @GetMapping("/posts/{postId}/comments")
     fun getCommentsByPostId(
         @PathVariable postId: Long,
-        authentication: Authentication?
+        request: HttpServletRequest
     ): ResponseEntity<Map<String, List<CommentResponse>>> {
-        val userId = (authentication?.principal as? Long)
-        println("🔐 CommentController.getCommentsByPostId: authentication=$authentication, principal=${authentication?.principal}, userId=$userId")
+        val userId = extractUserIdFromHeader(request)
+        println("🔐 CommentController.getCommentsByPostId: userId=$userId")
         val comments = commentService.getCommentsByPostId(postId, userId)
         return ResponseEntity.ok(mapOf("comments" to comments))
     }

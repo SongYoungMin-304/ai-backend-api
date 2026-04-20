@@ -2,7 +2,9 @@ package com.project.backendapi.controller
 
 import com.project.backendapi.domain.dto.CreatePostRequest
 import com.project.backendapi.domain.dto.PostResponse
+import com.project.backendapi.security.JwtProvider
 import com.project.backendapi.service.PostService
+import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -11,32 +13,44 @@ import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/posts")
 class PostController(
-    private val postService: PostService
+    private val postService: PostService,
+    private val jwtProvider: JwtProvider
 ) {
+
+    private fun extractUserIdFromHeader(request: HttpServletRequest): Long? {
+        val bearerToken = request.getHeader("Authorization")
+        return if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            val token = bearerToken.substring(7)
+            jwtProvider.getUserIdFromToken(token)
+        } else {
+            null
+        }
+    }
 
     @GetMapping
     fun getPosts(
         @PageableDefault(size = 10, sort = ["createdAt"], direction = Sort.Direction.DESC)
         pageable: Pageable,
-        authentication: Authentication?
+        request: HttpServletRequest
     ): ResponseEntity<Page<PostResponse>> {
-        val userId = (authentication?.principal as? Long)
-        println("🔐 PostController.getPosts: authentication=$authentication, principal=${authentication?.principal}, userId=$userId")
+        val userId = extractUserIdFromHeader(request)
+        println("🔐 PostController.getPosts: userId=$userId")
         return ResponseEntity.ok(postService.getPosts(pageable, userId))
     }
 
     @GetMapping("/{id}")
     fun getPostDetail(
         @PathVariable id: Long,
-        authentication: Authentication?
+        request: HttpServletRequest
     ): ResponseEntity<PostResponse> {
-        val userId = (authentication?.principal as? Long)
-        println("🔐 PostController.getPostDetail: authentication=$authentication, principal=${authentication?.principal}, userId=$userId")
+        val userId = extractUserIdFromHeader(request)
+        println("🔐 PostController.getPostDetail: userId=$userId")
         return ResponseEntity.ok(postService.getPostById(id, userId))
     }
 
