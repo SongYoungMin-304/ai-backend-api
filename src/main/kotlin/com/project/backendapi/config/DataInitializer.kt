@@ -25,41 +25,7 @@ class DataInitializer(
                 username = "admin",
                 password = passwordEncoder.encode("1234") as String
             )
-            val savedAdmin = userRepository.save(adminUser)
-
-            // 샘플 게시글 추가
-            val now = LocalDateTime.now()
-            postRepository.save(
-                Post(
-                    title = "첫 번째 게시글입니다",
-                    content = "환영합니다! 이것은 테스트 게시글입니다.",
-                    author = savedAdmin,
-                    createdAt = now,
-                    updatedAt = now
-                )
-            )
-
-            postRepository.save(
-                Post(
-                    title = "두 번째 게시글",
-                    content = "커뮤니티에 오신 것을 환영합니다.",
-                    author = savedAdmin,
-                    createdAt = now.minusDays(1),
-                    updatedAt = now.minusDays(1),
-                    viewCount = 5
-                )
-            )
-
-            postRepository.save(
-                Post(
-                    title = "공지사항",
-                    content = "게시판 규칙을 지켜주세요.",
-                    author = savedAdmin,
-                    createdAt = now.minusDays(2),
-                    updatedAt = now.minusDays(2),
-                    viewCount = 10
-                )
-            )
+            userRepository.save(adminUser)
         }
     }
 }
