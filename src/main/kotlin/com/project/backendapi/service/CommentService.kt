@@ -31,17 +31,17 @@ class CommentService(
         return comments.map { comment ->
             val response = CommentResponse.from(comment)
             val likeCount = commentLikeRepository.countByCommentId(comment.id!!)
-            val isLiked = userId?.let { commentLikeRepository.existsByCommentIdAndUserId(comment.id!!, it) } ?: false
-            println("📌 Comment ${comment.id}: likeCount=$likeCount, isLiked=$isLiked, userId=$userId")
+            val liked = userId?.let { commentLikeRepository.existsByCommentIdAndUserId(comment.id!!, it) } ?: false
+            println("📌 Comment ${comment.id}: likeCount=$likeCount, liked=$liked, userId=$userId")
 
             response.copy(
                 likeCount = likeCount,
-                isLiked = isLiked,
+                liked = liked,
                 replies = comment.replies.map { reply ->
                     val replyResponse = CommentResponse.from(reply)
                     val replyLikeCount = commentLikeRepository.countByCommentId(reply.id!!)
-                    val replyIsLiked = userId?.let { commentLikeRepository.existsByCommentIdAndUserId(reply.id!!, it) } ?: false
-                    replyResponse.copy(likeCount = replyLikeCount, isLiked = replyIsLiked)
+                    val replyLiked = userId?.let { commentLikeRepository.existsByCommentIdAndUserId(reply.id!!, it) } ?: false
+                    replyResponse.copy(likeCount = replyLikeCount, liked = replyLiked)
                 }
             )
         }

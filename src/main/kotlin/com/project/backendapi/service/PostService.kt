@@ -25,8 +25,8 @@ class PostService(
         return postRepository.findAllByOrderByCreatedAtDesc(pageable)
             .map { post ->
                 val likeCount = postLikeRepository.countByPostId(post.id!!)
-                val isLiked = userId?.let { postLikeRepository.existsByPostIdAndUserId(post.id!!, it) } ?: false
-                println("📌 Post ${post.id}: likeCount=$likeCount, isLiked=$isLiked, userId=$userId")
+                val liked = userId?.let { postLikeRepository.existsByPostIdAndUserId(post.id!!, it) } ?: false
+                println("📌 Post ${post.id}: likeCount=$likeCount, liked=$liked, userId=$userId")
 
                 PostResponse(
                     id = post.id!!,
@@ -42,7 +42,7 @@ class PostService(
                     viewCount = post.viewCount,
                     commentCount = post.comments.size,
                     likeCount = likeCount,
-                    isLiked = isLiked
+                    liked = liked
                 )
             }
     }
@@ -58,8 +58,8 @@ class PostService(
         postRepository.save(post)
 
         val likeCount = postLikeRepository.countByPostId(post.id!!)
-        val isLiked = userId?.let { postLikeRepository.existsByPostIdAndUserId(post.id!!, it) } ?: false
-        println("📌 Post ${post.id}: likeCount=$likeCount, isLiked=$isLiked, userId=$userId")
+        val liked = userId?.let { postLikeRepository.existsByPostIdAndUserId(post.id!!, it) } ?: false
+        println("📌 Post ${post.id}: likeCount=$likeCount, liked=$liked, userId=$userId")
 
         return PostResponse(
             id = post.id!!,
@@ -75,7 +75,7 @@ class PostService(
             viewCount = post.viewCount,
             commentCount = post.comments.size,
             likeCount = likeCount,
-            isLiked = isLiked
+            liked = liked
         )
     }
 

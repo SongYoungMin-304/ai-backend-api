@@ -36,7 +36,7 @@ class PostLikeService(
         return PostLikeResponse(
             postId = postId,
             likeCount = postLikeRepository.countByPostId(postId),
-            isLiked = true
+            liked = true
         )
     }
 
@@ -52,7 +52,7 @@ class PostLikeService(
         return PostLikeResponse(
             postId = postId,
             likeCount = postLikeRepository.countByPostId(postId),
-            isLiked = false
+            liked = false
         )
     }
 

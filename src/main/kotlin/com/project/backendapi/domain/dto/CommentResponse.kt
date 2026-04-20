@@ -13,7 +13,7 @@ data class CommentResponse(
     val parentCommentId: Long? = null,
     val replies: List<CommentResponse> = emptyList(),
     val likeCount: Long = 0,
-    val isLiked: Boolean = false
+    val liked: Boolean = false
 ) {
     companion object {
         fun from(comment: Comment): CommentResponse {

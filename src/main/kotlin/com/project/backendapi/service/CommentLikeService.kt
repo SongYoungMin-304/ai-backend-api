@@ -36,7 +36,7 @@ class CommentLikeService(
         return CommentLikeResponse(
             commentId = commentId,
             likeCount = commentLikeRepository.countByCommentId(commentId),
-            isLiked = true
+            liked = true
         )
     }
 
@@ -52,7 +52,7 @@ class CommentLikeService(
         return CommentLikeResponse(
             commentId = commentId,
             likeCount = commentLikeRepository.countByCommentId(commentId),
-            isLiked = false
+            liked = false
         )
     }
 

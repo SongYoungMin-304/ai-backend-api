@@ -13,5 +13,5 @@ data class PostResponse(
     val viewCount: Int,
     val commentCount: Int,
     val likeCount: Long = 0,
-    val isLiked: Boolean = false
+    val liked: Boolean = false
 )
