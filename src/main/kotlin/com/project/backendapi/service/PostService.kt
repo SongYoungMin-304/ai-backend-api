@@ -4,6 +4,7 @@ import com.project.backendapi.domain.dto.CreatePostRequest
 import com.project.backendapi.domain.dto.PostResponse
 import com.project.backendapi.domain.entity.Post
 import com.project.backendapi.domain.repository.PostRepository
+import com.project.backendapi.domain.repository.PostLikeRepository
 import com.project.backendapi.domain.repository.UserRepository
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -14,13 +15,19 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class PostService(
     private val postRepository: PostRepository,
+    private val postLikeRepository: PostLikeRepository,
     private val userRepository: UserRepository
 ) {
 
     @Transactional(readOnly = true)
-    fun getPosts(pageable: Pageable): Page<PostResponse> {
+    fun getPosts(pageable: Pageable, userId: Long? = null): Page<PostResponse> {
+        println("📌 getPosts: userId = $userId")
         return postRepository.findAllByOrderByCreatedAtDesc(pageable)
             .map { post ->
+                val likeCount = postLikeRepository.countByPostId(post.id!!)
+                val isLiked = userId?.let { postLikeRepository.existsByPostIdAndUserId(post.id!!, it) } ?: false
+                println("📌 Post ${post.id}: likeCount=$likeCount, isLiked=$isLiked, userId=$userId")
+
                 PostResponse(
                     id = post.id!!,
                     title = post.title,
@@ -33,19 +40,26 @@ class PostService(
                     createdAt = post.createdAt,
                     updatedAt = post.updatedAt,
                     viewCount = post.viewCount,
-                    commentCount = post.comments.size
+                    commentCount = post.comments.size,
+                    likeCount = likeCount,
+                    isLiked = isLiked
                 )
             }
     }
 
     @Transactional(readOnly = true)
-    fun getPostById(id: Long): PostResponse {
+    fun getPostById(id: Long, userId: Long? = null): PostResponse {
+        println("📌 getPostById: id=$id, userId=$userId")
         val post = postRepository.findById(id).orElseThrow {
             IllegalArgumentException("게시글을 찾을 수 없습니다")
         }
 
         post.viewCount++
         postRepository.save(post)
+
+        val likeCount = postLikeRepository.countByPostId(post.id!!)
+        val isLiked = userId?.let { postLikeRepository.existsByPostIdAndUserId(post.id!!, it) } ?: false
+        println("📌 Post ${post.id}: likeCount=$likeCount, isLiked=$isLiked, userId=$userId")
 
         return PostResponse(
             id = post.id!!,
@@ -59,7 +73,9 @@ class PostService(
             createdAt = post.createdAt,
             updatedAt = post.updatedAt,
             viewCount = post.viewCount,
-            commentCount = post.comments.size
+            commentCount = post.comments.size,
+            likeCount = likeCount,
+            isLiked = isLiked
         )
     }
 

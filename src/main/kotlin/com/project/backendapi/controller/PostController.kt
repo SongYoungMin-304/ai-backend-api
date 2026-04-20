@@ -22,14 +22,22 @@ class PostController(
     @GetMapping
     fun getPosts(
         @PageableDefault(size = 10, sort = ["createdAt"], direction = Sort.Direction.DESC)
-        pageable: Pageable
+        pageable: Pageable,
+        authentication: Authentication?
     ): ResponseEntity<Page<PostResponse>> {
-        return ResponseEntity.ok(postService.getPosts(pageable))
+        val userId = (authentication?.principal as? Long)
+        println("🔐 PostController.getPosts: authentication=$authentication, principal=${authentication?.principal}, userId=$userId")
+        return ResponseEntity.ok(postService.getPosts(pageable, userId))
     }
 
     @GetMapping("/{id}")
-    fun getPostDetail(@PathVariable id: Long): ResponseEntity<PostResponse> {
-        return ResponseEntity.ok(postService.getPostById(id))
+    fun getPostDetail(
+        @PathVariable id: Long,
+        authentication: Authentication?
+    ): ResponseEntity<PostResponse> {
+        val userId = (authentication?.principal as? Long)
+        println("🔐 PostController.getPostDetail: authentication=$authentication, principal=${authentication?.principal}, userId=$userId")
+        return ResponseEntity.ok(postService.getPostById(id, userId))
     }
 
     @PostMapping

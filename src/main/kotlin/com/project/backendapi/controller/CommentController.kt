@@ -15,8 +15,13 @@ class CommentController(
 ) {
 
     @GetMapping("/posts/{postId}/comments")
-    fun getCommentsByPostId(@PathVariable postId: Long): ResponseEntity<Map<String, List<CommentResponse>>> {
-        val comments = commentService.getCommentsByPostId(postId)
+    fun getCommentsByPostId(
+        @PathVariable postId: Long,
+        authentication: Authentication?
+    ): ResponseEntity<Map<String, List<CommentResponse>>> {
+        val userId = (authentication?.principal as? Long)
+        println("🔐 CommentController.getCommentsByPostId: authentication=$authentication, principal=${authentication?.principal}, userId=$userId")
+        val comments = commentService.getCommentsByPostId(postId, userId)
         return ResponseEntity.ok(mapOf("comments" to comments))
     }
 

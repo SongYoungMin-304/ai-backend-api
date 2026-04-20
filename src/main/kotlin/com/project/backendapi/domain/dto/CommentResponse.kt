@@ -11,7 +11,9 @@ data class CommentResponse(
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
     val parentCommentId: Long? = null,
-    val replies: List<CommentResponse> = emptyList()
+    val replies: List<CommentResponse> = emptyList(),
+    val likeCount: Long = 0,
+    val isLiked: Boolean = false
 ) {
     companion object {
         fun from(comment: Comment): CommentResponse {

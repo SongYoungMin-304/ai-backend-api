@@ -11,5 +11,7 @@ data class PostResponse(
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
     val viewCount: Int,
-    val commentCount: Int
+    val commentCount: Int,
+    val likeCount: Long = 0,
+    val isLiked: Boolean = false
 )

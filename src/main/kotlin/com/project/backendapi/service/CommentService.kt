@@ -4,6 +4,7 @@ import com.project.backendapi.domain.dto.CommentResponse
 import com.project.backendapi.domain.dto.CreateCommentRequest
 import com.project.backendapi.domain.entity.Comment
 import com.project.backendapi.domain.repository.CommentRepository
+import com.project.backendapi.domain.repository.CommentLikeRepository
 import com.project.backendapi.domain.repository.PostRepository
 import com.project.backendapi.domain.repository.UserRepository
 import org.springframework.stereotype.Service
@@ -13,19 +14,37 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class CommentService(
     private val commentRepository: CommentRepository,
+    private val commentLikeRepository: CommentLikeRepository,
     private val postRepository: PostRepository,
     private val userRepository: UserRepository
 ) {
 
     @Transactional(readOnly = true)
-    fun getCommentsByPostId(postId: Long): List<CommentResponse> {
+    fun getCommentsByPostId(postId: Long, userId: Long? = null): List<CommentResponse> {
+        println("📌 getCommentsByPostId: postId=$postId, userId=$userId")
         postRepository.findById(postId)
             .orElseThrow { IllegalArgumentException("게시글을 찾을 수 없습니다") }
 
         val comments = commentRepository.findByPostIdOrderByCreatedAtDesc(postId)
             .filter { it.parentComment == null }
 
-        return comments.map { CommentResponse.from(it) }
+        return comments.map { comment ->
+            val response = CommentResponse.from(comment)
+            val likeCount = commentLikeRepository.countByCommentId(comment.id!!)
+            val isLiked = userId?.let { commentLikeRepository.existsByCommentIdAndUserId(comment.id!!, it) } ?: false
+            println("📌 Comment ${comment.id}: likeCount=$likeCount, isLiked=$isLiked, userId=$userId")
+
+            response.copy(
+                likeCount = likeCount,
+                isLiked = isLiked,
+                replies = comment.replies.map { reply ->
+                    val replyResponse = CommentResponse.from(reply)
+                    val replyLikeCount = commentLikeRepository.countByCommentId(reply.id!!)
+                    val replyIsLiked = userId?.let { commentLikeRepository.existsByCommentIdAndUserId(reply.id!!, it) } ?: false
+                    replyResponse.copy(likeCount = replyLikeCount, isLiked = replyIsLiked)
+                }
+            )
+        }
     }
 
     fun createComment(postId: Long, authorId: Long, request: CreateCommentRequest): CommentResponse {
