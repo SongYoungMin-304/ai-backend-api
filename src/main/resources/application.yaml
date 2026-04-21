@@ -33,4 +33,20 @@ jwt:
 
 server:
   servlet:
-    context-path: /api/v1
+    context-path: /
+
+# Swagger UI Configuration (Springdoc OpenAPI)
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: method
+    tags-sorter: alpha
+    use-root-path: true
+    urls-primary-name: "API"
+  show-actuator: false
+  # Context path 무시하고 루트 경로에서 제공
+  use-management-port: false

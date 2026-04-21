@@ -46,6 +46,17 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth
+                    // Swagger UI 및 관련 리소스 (최상단에 배치)
+                    .requestMatchers(
+                        "/swagger-ui.html",
+                        "/swagger-ui/**",
+                        "/v3/api-docs",
+                        "/v3/api-docs/**",
+                        "/swagger-resources",
+                        "/swagger-resources/**",
+                        "/webjars/**"
+                    ).permitAll()
+                    // 기존 공개 경로
                     .requestMatchers("/auth/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/posts").permitAll()
                     .requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
