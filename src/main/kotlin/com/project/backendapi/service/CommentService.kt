@@ -47,7 +47,7 @@ class CommentService(
         }
     }
 
-    fun createComment(postId: Long, authorId: Long, request: CreateCommentRequest): CommentResponse {
+    fun createComment(postId: Long, authorId: Long, request: CreateCommentRequest, imageUrl: String? = null): CommentResponse {
         val post = postRepository.findById(postId)
             .orElseThrow { IllegalArgumentException("게시글을 찾을 수 없습니다") }
 
@@ -56,6 +56,7 @@ class CommentService(
 
         val comment = Comment(
             content = request.content,
+            imageUrl = imageUrl,
             post = post,
             author = author,
             parentComment = null
@@ -65,7 +66,7 @@ class CommentService(
         return CommentResponse.from(saved)
     }
 
-    fun createReply(parentCommentId: Long, authorId: Long, request: CreateCommentRequest): CommentResponse {
+    fun createReply(parentCommentId: Long, authorId: Long, request: CreateCommentRequest, imageUrl: String? = null): CommentResponse {
         val parentComment = commentRepository.findById(parentCommentId)
             .orElseThrow { IllegalArgumentException("댓글을 찾을 수 없습니다") }
 
@@ -74,6 +75,7 @@ class CommentService(
 
         val reply = Comment(
             content = request.content,
+            imageUrl = imageUrl,
             post = parentComment.post,
             author = author,
             parentComment = parentComment

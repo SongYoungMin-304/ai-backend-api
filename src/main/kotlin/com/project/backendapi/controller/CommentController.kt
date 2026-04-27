@@ -4,6 +4,7 @@ import com.project.backendapi.domain.dto.CommentResponse
 import com.project.backendapi.domain.dto.CreateCommentRequest
 import com.project.backendapi.security.JwtProvider
 import com.project.backendapi.service.CommentService
+import com.project.backendapi.service.FileStorageService
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -11,11 +12,13 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 
 @RestController
 class CommentController(
     private val commentService: CommentService,
-    private val jwtProvider: JwtProvider
+    private val jwtProvider: JwtProvider,
+    private val fileStorageService: FileStorageService
 ) {
 
     private fun extractUserIdFromHeader(request: HttpServletRequest): Long? {
@@ -42,26 +45,32 @@ class CommentController(
     @PostMapping("/posts/{postId}/comments")
     fun createComment(
         @PathVariable postId: Long,
-        @Valid @RequestBody request: CreateCommentRequest,
+        @RequestParam("content") content: String,
+        @RequestParam("image", required = false) image: MultipartFile?,
         authentication: Authentication
     ): ResponseEntity<CommentResponse> {
         val userId = (authentication.principal as? Long)
             ?: throw IllegalArgumentException("사용자를 식별할 수 없습니다")
 
-        val comment = commentService.createComment(postId, userId, request)
+        val imageUrl = image?.let { fileStorageService.storeFile(it) }
+        val request = CreateCommentRequest(content)
+        val comment = commentService.createComment(postId, userId, request, imageUrl)
         return ResponseEntity.status(HttpStatus.CREATED).body(comment)
     }
 
     @PostMapping("/comments/{commentId}/replies")
     fun createReply(
         @PathVariable commentId: Long,
-        @Valid @RequestBody request: CreateCommentRequest,
+        @RequestParam("content") content: String,
+        @RequestParam("image", required = false) image: MultipartFile?,
         authentication: Authentication
     ): ResponseEntity<CommentResponse> {
         val userId = (authentication.principal as? Long)
             ?: throw IllegalArgumentException("사용자를 식별할 수 없습니다")
 
-        val reply = commentService.createReply(commentId, userId, request)
+        val imageUrl = image?.let { fileStorageService.storeFile(it) }
+        val request = CreateCommentRequest(content)
+        val reply = commentService.createReply(commentId, userId, request, imageUrl)
         return ResponseEntity.status(HttpStatus.CREATED).body(reply)
     }
 

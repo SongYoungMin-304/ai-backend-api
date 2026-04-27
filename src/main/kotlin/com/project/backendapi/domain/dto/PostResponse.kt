@@ -7,6 +7,7 @@ data class PostResponse(
     val id: Long,
     val title: String,
     val content: String,
+    val imageUrl: String? = null,
     val author: UserSimpleResponse,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,

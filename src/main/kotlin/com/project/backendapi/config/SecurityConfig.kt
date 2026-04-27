@@ -46,7 +46,6 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth
-                    // Swagger UI 및 관련 리소스 (최상단에 배치)
                     .requestMatchers(
                         "/swagger-ui.html",
                         "/swagger-ui/**",
@@ -56,13 +55,12 @@ class SecurityConfig(
                         "/swagger-resources/**",
                         "/webjars/**"
                     ).permitAll()
-                    // 기존 공개 경로
                     .requestMatchers("/auth/**").permitAll()
+                    .requestMatchers("/uploads/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/posts").permitAll()
                     .requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/users/**").permitAll()
                     .requestMatchers("/h2-console/**").permitAll()
-                    // 임시: 좋아요 기능 테스트용
                     .requestMatchers(HttpMethod.POST, "/comments/*/likes").permitAll()
                     .requestMatchers(HttpMethod.DELETE, "/comments/*/likes").permitAll()
                     .requestMatchers(HttpMethod.POST, "/posts/*/likes").permitAll()

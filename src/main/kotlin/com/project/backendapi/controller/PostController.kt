@@ -3,6 +3,7 @@ package com.project.backendapi.controller
 import com.project.backendapi.domain.dto.CreatePostRequest
 import com.project.backendapi.domain.dto.PostResponse
 import com.project.backendapi.security.JwtProvider
+import com.project.backendapi.service.FileStorageService
 import com.project.backendapi.service.PostService
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
@@ -15,12 +16,14 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/posts")
 class PostController(
     private val postService: PostService,
-    private val jwtProvider: JwtProvider
+    private val jwtProvider: JwtProvider,
+    private val fileStorageService: FileStorageService
 ) {
 
     private fun extractUserIdFromHeader(request: HttpServletRequest): Long? {
@@ -56,13 +59,19 @@ class PostController(
 
     @PostMapping
     fun createPost(
-        @Valid @RequestBody request: CreatePostRequest,
+        @RequestParam("title") title: String,
+        @RequestParam("content") content: String,
+        @RequestParam("image", required = false) image: MultipartFile?,
         authentication: Authentication
     ): ResponseEntity<PostResponse> {
         val userId = (authentication.principal as? Long)
             ?: throw IllegalArgumentException("사용자를 식별할 수 없습니다")
+        
+        val imageUrl = image?.let { fileStorageService.storeFile(it) }
+        val request = CreatePostRequest(title, content)
+        
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(postService.createPost(userId, request))
+            .body(postService.createPost(userId, request, imageUrl))
     }
 
     @DeleteMapping("/{id}")
@@ -74,5 +83,16 @@ class PostController(
             ?: throw IllegalArgumentException("사용자를 식별할 수 없습니다")
         postService.deletePost(id, userId)
         return ResponseEntity.ok(mapOf("message" to "게시글이 삭제되었습니다"))
+    }
+
+    @GetMapping("/{id}/neighbors")
+    fun getNeighborPosts(
+        @PathVariable id: Long
+    ): ResponseEntity<Map<String, Any>> {
+        val neighbors = postService.getNeighborPosts(id)
+        return ResponseEntity.ok(mapOf(
+            "success" to true,
+            "data" to neighbors
+        ))
     }
 }

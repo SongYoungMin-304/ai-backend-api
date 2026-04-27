@@ -1,6 +1,8 @@
 package com.project.backendapi.service
 
 import com.project.backendapi.domain.dto.CreatePostRequest
+import com.project.backendapi.domain.dto.NeighborPostDTO
+import com.project.backendapi.domain.dto.NeighborsResponse
 import com.project.backendapi.domain.dto.PostResponse
 import com.project.backendapi.domain.entity.Post
 import com.project.backendapi.domain.repository.PostRepository
@@ -32,6 +34,7 @@ class PostService(
                     id = post.id!!,
                     title = post.title,
                     content = post.content,
+                    imageUrl = post.imageUrl,
                     author = UserSimpleResponse(
                         id = post.author!!.id!!,
                         username = post.author!!.username,
@@ -65,6 +68,7 @@ class PostService(
             id = post.id!!,
             title = post.title,
             content = post.content,
+            imageUrl = post.imageUrl,
             author = UserSimpleResponse(
                 id = post.author!!.id!!,
                 username = post.author!!.username,
@@ -79,7 +83,7 @@ class PostService(
         )
     }
 
-    fun createPost(authorId: Long, request: CreatePostRequest): PostResponse {
+    fun createPost(authorId: Long, request: CreatePostRequest, imageUrl: String? = null): PostResponse {
         val author = userRepository.findById(authorId).orElseThrow {
             IllegalArgumentException("사용자를 찾을 수 없습니다")
         }
@@ -87,6 +91,7 @@ class PostService(
         val post = Post(
             title = request.title,
             content = request.content,
+            imageUrl = imageUrl,
             author = author
         )
 
@@ -96,6 +101,7 @@ class PostService(
             id = savedPost.id!!,
             title = savedPost.title,
             content = savedPost.content,
+            imageUrl = savedPost.imageUrl,
             author = UserSimpleResponse(
                 id = savedPost.author!!.id!!,
                 username = savedPost.author!!.username,
@@ -118,6 +124,32 @@ class PostService(
         }
 
         postRepository.delete(post)
+    }
+
+    @Transactional(readOnly = true)
+    fun getPreviousPost(currentPostId: Long): NeighborPostDTO? {
+        return postRepository.findPreviousPost(currentPostId)
+    }
+
+    @Transactional(readOnly = true)
+    fun getNextPost(currentPostId: Long): NeighborPostDTO? {
+        return postRepository.findNextPost(currentPostId)
+    }
+
+    @Transactional(readOnly = true)
+    fun getNeighborPosts(currentPostId: Long): NeighborsResponse {
+        // 게시글 존재 여부 확인
+        postRepository.findById(currentPostId).orElseThrow {
+            IllegalArgumentException("게시글을 찾을 수 없습니다")
+        }
+
+        val previousPost = postRepository.findPreviousPost(currentPostId)
+        val nextPost = postRepository.findNextPost(currentPostId)
+
+        return NeighborsResponse(
+            previousPost = previousPost,
+            nextPost = nextPost
+        )
     }
 }
 

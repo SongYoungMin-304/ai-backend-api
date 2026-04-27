@@ -19,6 +19,9 @@ class Post(
     @Column(columnDefinition = "TEXT", nullable = false)
     var content: String = "",
 
+    @Column(nullable = true)
+    var imageUrl: String? = null,
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
     val author: User? = null,
