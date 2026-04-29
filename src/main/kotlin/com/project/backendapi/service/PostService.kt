@@ -50,15 +50,16 @@ class PostService(
             }
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     fun getPostById(id: Long, userId: Long? = null): PostResponse {
         println("📌 getPostById: id=$id, userId=$userId")
         val post = postRepository.findById(id).orElseThrow {
             IllegalArgumentException("게시글을 찾을 수 없습니다")
         }
 
+        println("📌 Before increment: viewCount=${post.viewCount}")
         post.viewCount++
-        postRepository.save(post)
+        println("📌 After increment: viewCount=${post.viewCount}")
 
         val likeCount = postLikeRepository.countByPostId(post.id!!)
         val liked = userId?.let { postLikeRepository.existsByPostIdAndUserId(post.id!!, it) } ?: false
