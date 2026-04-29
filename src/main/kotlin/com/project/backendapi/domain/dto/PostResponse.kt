@@ -1,5 +1,6 @@
 package com.project.backendapi.domain.dto
 
+import com.project.backendapi.domain.entity.Category
 import com.project.backendapi.service.UserSimpleResponse
 import java.time.LocalDateTime
 
@@ -8,6 +9,7 @@ data class PostResponse(
     val title: String,
     val content: String,
     val imageUrl: String? = null,
+    val category: Category? = null,
     val author: UserSimpleResponse,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,

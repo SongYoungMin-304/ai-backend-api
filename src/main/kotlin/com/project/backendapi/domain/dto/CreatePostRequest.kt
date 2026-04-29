@@ -1,5 +1,6 @@
 package com.project.backendapi.domain.dto
 
+import com.project.backendapi.domain.entity.Category
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 
@@ -9,5 +10,7 @@ data class CreatePostRequest(
     val title: String,
 
     @field:NotBlank(message = "내용은 필수입니다")
-    val content: String
+    val content: String,
+
+    val category: Category? = null
 )

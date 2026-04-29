@@ -2,6 +2,7 @@ package com.project.backendapi.domain.entity
 
 import jakarta.persistence.*
 import java.time.LocalDateTime
+import com.project.backendapi.domain.entity.Category
 
 @Entity
 @Table(name = "posts", indexes = [
@@ -21,6 +22,10 @@ class Post(
 
     @Column(nullable = true)
     var imageUrl: String? = null,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category", nullable = true)
+    var category: Category? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)

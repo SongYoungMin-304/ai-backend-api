@@ -22,32 +22,38 @@ class PostService(
 ) {
 
     @Transactional(readOnly = true)
-    fun getPosts(pageable: Pageable, userId: Long? = null): Page<PostResponse> {
-        println("📌 getPosts: userId = $userId")
-        return postRepository.findAllByOrderByCreatedAtDesc(pageable)
-            .map { post ->
-                val likeCount = postLikeRepository.countByPostId(post.id!!)
-                val liked = userId?.let { postLikeRepository.existsByPostIdAndUserId(post.id!!, it) } ?: false
-                println("📌 Post ${post.id}: likeCount=$likeCount, liked=$liked, userId=$userId")
+    fun getPosts(pageable: Pageable, userId: Long? = null, category: com.project.backendapi.domain.entity.Category? = null): Page<PostResponse> {
+        println("📌 getPosts: userId = $userId, category = $category")
+        val posts = if (category != null) {
+            postRepository.findByCategoryOrderByCreatedAtDesc(category, pageable)
+        } else {
+            postRepository.findAllByOrderByCreatedAtDesc(pageable)
+        }
+        
+        return posts.map { post ->
+            val likeCount = postLikeRepository.countByPostId(post.id!!)
+            val liked = userId?.let { postLikeRepository.existsByPostIdAndUserId(post.id!!, it) } ?: false
+            println("📌 Post ${post.id}: likeCount=$likeCount, liked=$liked, userId=$userId")
 
-                PostResponse(
-                    id = post.id!!,
-                    title = post.title,
-                    content = post.content,
-                    imageUrl = post.imageUrl,
-                    author = UserSimpleResponse(
-                        id = post.author!!.id!!,
-                        username = post.author!!.username,
-                        profileImage = post.author!!.profileImage
-                    ),
-                    createdAt = post.createdAt,
-                    updatedAt = post.updatedAt,
-                    viewCount = post.viewCount,
-                    commentCount = post.comments.size,
-                    likeCount = likeCount,
-                    liked = liked
-                )
-            }
+            PostResponse(
+                id = post.id!!,
+                title = post.title,
+                content = post.content,
+                imageUrl = post.imageUrl,
+                category = post.category,
+                author = UserSimpleResponse(
+                    id = post.author!!.id!!,
+                    username = post.author!!.username,
+                    profileImage = post.author!!.profileImage
+                ),
+                createdAt = post.createdAt,
+                updatedAt = post.updatedAt,
+                viewCount = post.viewCount,
+                commentCount = post.comments.size,
+                likeCount = likeCount,
+                liked = liked
+            )
+        }
     }
 
     @Transactional
@@ -70,6 +76,7 @@ class PostService(
             title = post.title,
             content = post.content,
             imageUrl = post.imageUrl,
+            category = post.category,
             author = UserSimpleResponse(
                 id = post.author!!.id!!,
                 username = post.author!!.username,
@@ -93,6 +100,7 @@ class PostService(
             title = request.title,
             content = request.content,
             imageUrl = imageUrl,
+            category = request.category,
             author = author
         )
 
@@ -103,6 +111,7 @@ class PostService(
             title = savedPost.title,
             content = savedPost.content,
             imageUrl = savedPost.imageUrl,
+            category = savedPost.category,
             author = UserSimpleResponse(
                 id = savedPost.author!!.id!!,
                 username = savedPost.author!!.username,

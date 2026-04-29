@@ -40,11 +40,19 @@ class PostController(
     fun getPosts(
         @PageableDefault(size = 10, sort = ["createdAt"], direction = Sort.Direction.DESC)
         pageable: Pageable,
+        @RequestParam("category", required = false) category: String?,
         request: HttpServletRequest
     ): ResponseEntity<Page<PostResponse>> {
         val userId = extractUserIdFromHeader(request)
-        println("🔐 PostController.getPosts: userId=$userId")
-        return ResponseEntity.ok(postService.getPosts(pageable, userId))
+        val categoryEnum = category?.let { 
+            try {
+                com.project.backendapi.domain.entity.Category.valueOf(it)
+            } catch (e: IllegalArgumentException) {
+                null
+            }
+        }
+        println("🔐 PostController.getPosts: userId=$userId, category=$categoryEnum")
+        return ResponseEntity.ok(postService.getPosts(pageable, userId, categoryEnum))
     }
 
     @GetMapping("/{id}")
@@ -61,6 +69,7 @@ class PostController(
     fun createPost(
         @RequestParam("title") title: String,
         @RequestParam("content") content: String,
+        @RequestParam("category", required = false) category: String?,
         @RequestParam("image", required = false) image: MultipartFile?,
         authentication: Authentication
     ): ResponseEntity<PostResponse> {
@@ -68,7 +77,14 @@ class PostController(
             ?: throw IllegalArgumentException("사용자를 식별할 수 없습니다")
         
         val imageUrl = image?.let { fileStorageService.storeFile(it) }
-        val request = CreatePostRequest(title, content)
+        val categoryEnum = category?.let { 
+            try {
+                com.project.backendapi.domain.entity.Category.valueOf(it)
+            } catch (e: IllegalArgumentException) {
+                null
+            }
+        }
+        val request = CreatePostRequest(title, content, categoryEnum)
         
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(postService.createPost(userId, request, imageUrl))
