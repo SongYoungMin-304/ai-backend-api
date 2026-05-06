@@ -27,7 +27,7 @@ class SecurityConfig(
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
         val configuration = CorsConfiguration()
-        configuration.allowedOrigins = listOf("http://localhost:3000", "http://localhost:8080")
+        configuration.allowedOrigins = listOf("http://localhost:3000", "http://localhost:5173", "http://localhost:8080")
         configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
         configuration.allowedHeaders = listOf("*")
         configuration.allowCredentials = true
@@ -61,6 +61,7 @@ class SecurityConfig(
                     .requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/users/**").permitAll()
                     .requestMatchers("/h2-console/**").permitAll()
+                    .requestMatchers("/bookings/**").permitAll()
                     .requestMatchers(HttpMethod.POST, "/comments/*/likes").permitAll()
                     .requestMatchers(HttpMethod.DELETE, "/comments/*/likes").permitAll()
                     .requestMatchers(HttpMethod.POST, "/posts/*/likes").permitAll()
