@@ -2,6 +2,7 @@ package com.project.backendapi.config
 
 import com.project.backendapi.domain.entity.Post
 import com.project.backendapi.domain.entity.User
+import com.project.backendapi.domain.entity.UserRole
 import com.project.backendapi.domain.repository.PostRepository
 import com.project.backendapi.domain.repository.UserRepository
 import org.springframework.boot.CommandLineRunner
@@ -18,12 +19,12 @@ class DataInitializer(
 
     @Throws(Exception::class)
     override fun run(vararg args: String) {
-        // admin 계정이 없으면 생성
         if (!userRepository.existsByUsername("admin")) {
             val adminUser = User(
                 email = "admin@community.local",
                 username = "admin",
-                password = passwordEncoder.encode("1234") as String
+                password = passwordEncoder.encode("1234") as String,
+                role = UserRole.ADMIN
             )
             userRepository.save(adminUser)
         }

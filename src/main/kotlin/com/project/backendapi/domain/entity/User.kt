@@ -3,6 +3,17 @@ package com.project.backendapi.domain.entity
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
+enum class UserRole {
+    USER,
+    ADMIN
+}
+
+enum class UserTier {
+    FREE,
+    PREMIUM,
+    ENTERPRISE
+}
+
 @Entity
 @Table(name = "users")
 class User(
@@ -21,6 +32,14 @@ class User(
 
     var profileImage: String? = null,
     var bio: String? = null,
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    var role: UserRole = UserRole.USER,
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    var tier: UserTier = UserTier.FREE,
 
     @Column(nullable = false, updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),

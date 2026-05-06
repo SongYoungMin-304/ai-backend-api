@@ -62,6 +62,8 @@ class SecurityConfig(
                     .requestMatchers(HttpMethod.GET, "/users/**").permitAll()
                     .requestMatchers("/h2-console/**").permitAll()
                     .requestMatchers("/bookings/**").permitAll()
+                    .requestMatchers("/free-resources/**").permitAll()
+                    .requestMatchers("/digital-products/**").permitAll()
                     .requestMatchers(HttpMethod.POST, "/comments/*/likes").permitAll()
                     .requestMatchers(HttpMethod.DELETE, "/comments/*/likes").permitAll()
                     .requestMatchers(HttpMethod.POST, "/posts/*/likes").permitAll()

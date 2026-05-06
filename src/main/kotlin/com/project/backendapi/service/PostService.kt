@@ -4,6 +4,7 @@ import com.project.backendapi.domain.dto.CreatePostRequest
 import com.project.backendapi.domain.dto.NeighborPostDTO
 import com.project.backendapi.domain.dto.NeighborsResponse
 import com.project.backendapi.domain.dto.PostResponse
+import com.project.backendapi.domain.dto.UserSimpleResponse
 import com.project.backendapi.domain.entity.Post
 import com.project.backendapi.domain.repository.PostRepository
 import com.project.backendapi.domain.repository.PostLikeRepository
@@ -41,11 +42,7 @@ class PostService(
                 content = post.content,
                 imageUrl = post.imageUrl,
                 category = post.category,
-                author = UserSimpleResponse(
-                    id = post.author!!.id!!,
-                    username = post.author!!.username,
-                    profileImage = post.author!!.profileImage
-                ),
+                author = UserSimpleResponse.from(post.author!!),
                 createdAt = post.createdAt,
                 updatedAt = post.updatedAt,
                 viewCount = post.viewCount,
@@ -77,11 +74,7 @@ class PostService(
             content = post.content,
             imageUrl = post.imageUrl,
             category = post.category,
-            author = UserSimpleResponse(
-                id = post.author!!.id!!,
-                username = post.author!!.username,
-                profileImage = post.author!!.profileImage
-            ),
+            author = UserSimpleResponse.from(post.author!!),
             createdAt = post.createdAt,
             updatedAt = post.updatedAt,
             viewCount = post.viewCount,
@@ -112,11 +105,7 @@ class PostService(
             content = savedPost.content,
             imageUrl = savedPost.imageUrl,
             category = savedPost.category,
-            author = UserSimpleResponse(
-                id = savedPost.author!!.id!!,
-                username = savedPost.author!!.username,
-                profileImage = savedPost.author!!.profileImage
-            ),
+            author = UserSimpleResponse.from(savedPost.author!!),
             createdAt = savedPost.createdAt,
             updatedAt = savedPost.updatedAt,
             viewCount = savedPost.viewCount,
@@ -162,9 +151,3 @@ class PostService(
         )
     }
 }
-
-data class UserSimpleResponse(
-    val id: Long,
-    val username: String,
-    val profileImage: String?
-)

@@ -2,6 +2,7 @@ package com.project.backendapi.service
 
 import com.project.backendapi.domain.dto.UserResponse
 import com.project.backendapi.domain.entity.User
+import com.project.backendapi.domain.entity.UserRole
 import com.project.backendapi.domain.repository.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -23,6 +24,8 @@ class UserService(
             username = user.username,
             profileImage = user.profileImage,
             bio = user.bio,
+            tier = user.tier,
+            isMasterAccount = user.role == UserRole.ADMIN,
             createdAt = user.createdAt,
             postCount = user.posts.size,
             commentCount = user.comments.size
@@ -54,6 +57,8 @@ class UserService(
             username = updatedUser.username,
             profileImage = updatedUser.profileImage,
             bio = updatedUser.bio,
+            tier = updatedUser.tier,
+            isMasterAccount = updatedUser.role == UserRole.ADMIN,
             createdAt = updatedUser.createdAt,
             postCount = updatedUser.posts.size,
             commentCount = updatedUser.comments.size

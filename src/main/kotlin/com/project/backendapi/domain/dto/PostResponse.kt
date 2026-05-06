@@ -1,7 +1,6 @@
 package com.project.backendapi.domain.dto
 
 import com.project.backendapi.domain.entity.Category
-import com.project.backendapi.service.UserSimpleResponse
 import java.time.LocalDateTime
 
 data class PostResponse(

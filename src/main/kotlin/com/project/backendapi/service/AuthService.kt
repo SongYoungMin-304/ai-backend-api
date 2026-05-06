@@ -4,6 +4,7 @@ import com.project.backendapi.domain.dto.AuthResponse
 import com.project.backendapi.domain.dto.LoginRequest
 import com.project.backendapi.domain.dto.SignupRequest
 import com.project.backendapi.domain.entity.User
+import com.project.backendapi.domain.entity.UserRole
 import com.project.backendapi.domain.repository.UserRepository
 import com.project.backendapi.security.JwtProvider
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -37,6 +38,8 @@ class AuthService(
             id = userId,
             email = savedUser.email,
             username = savedUser.username,
+            isMasterAccount = savedUser.role == UserRole.ADMIN,
+            tier = savedUser.tier.name,
             accessToken = jwtProvider.generateAccessToken(userId, savedUser.email, savedUser.username),
             refreshToken = jwtProvider.generateRefreshToken(userId),
             createdAt = savedUser.createdAt
@@ -77,6 +80,8 @@ class AuthService(
             id = updatedUser.id!!,
             email = updatedUser.email,
             username = updatedUser.username,
+            isMasterAccount = updatedUser.role == UserRole.ADMIN,
+            tier = updatedUser.tier.name,
             accessToken = jwtProvider.generateAccessToken(updatedUser.id!!, updatedUser.email, updatedUser.username),
             refreshToken = jwtProvider.generateRefreshToken(updatedUser.id!!),
             createdAt = updatedUser.createdAt
@@ -99,6 +104,8 @@ class AuthService(
             id = user.id!!,
             email = user.email,
             username = user.username,
+            isMasterAccount = user.role == UserRole.ADMIN,
+            tier = user.tier.name,
             accessToken = jwtProvider.generateAccessToken(user.id!!, user.email, user.username),
             refreshToken = jwtProvider.generateRefreshToken(user.id!!),
             createdAt = user.createdAt
